@@ -15,12 +15,36 @@ class SocialMediaButtons extends StatelessWidget {
           GestureDetector(
             onTap: () {},
             child: Container(
-                height: 50, width: 50, color: ColorConstants.kgreyColor),
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                  5,
+                ),
+                color: ColorConstants.kgreyColor.withOpacity(0.4),
+              ),
+              child: Image.asset(
+                'assets/images/google-logo.png',
+                scale: 1.2,
+              ),
+            ),
           ),
           GestureDetector(
             onTap: () {},
             child: Container(
-                height: 50, width: 50, color: ColorConstants.kgreyColor),
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(
+                  5,
+                ),
+                color: ColorConstants.kgreyColor.withOpacity(0.4),
+              ),
+              child: Image.asset(
+                'assets/images/facebook-logo.png',
+                scale: 0.85,
+              ),
+            ),
           )
         ],
       ),
