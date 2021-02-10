@@ -11,10 +11,9 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  TextEditingController _codeController;
-
-  TextEditingController _confirmPasswordController;
-  TextEditingController _passwordController;
+  String _code = "";
+  String _confirmPassword;
+  String _password;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +90,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                             fontWeight: FontWeight.w600),
                       ),
                       TextFields(
-                        controller: _codeController,
+                        onChanged: (value) {
+                          setState(() => _code = value);
+                        },
+                        validator: (value) => value.isEmpty ? "Required" : null,
                         keyboardType: TextInputType.text,
                         labelText: 'Enter Code',
                       ),
@@ -104,7 +106,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                             fontWeight: FontWeight.w600),
                       ),
                       TextFields(
-                        controller: _passwordController,
+                        onChanged: (value) {
+                          setState(() => _password = value);
+                        },
+                        validator: (value) => value.isEmpty ? "Required" : null,
                         keyboardType: TextInputType.text,
                         labelText: 'Enter Password',
                       ),
@@ -117,7 +122,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                             fontWeight: FontWeight.w600),
                       ),
                       TextFields(
-                        controller: _confirmPasswordController,
+                        onChanged: (value) {
+                          setState(() => _confirmPassword = value);
+                        },
+                        validator: (value) => value.isEmpty ? "Required" : null,
                         keyboardType: TextInputType.text,
                         labelText: 'Re-enter Password',
                       ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sponsorHumanity/screens/forgotpass_screen.dart';
 import 'package:sponsorHumanity/screens/signup_screen.dart';
 import 'package:sponsorHumanity/screens/verification_screen.dart';
+import 'package:sponsorHumanity/services/auth.dart';
 import 'package:sponsorHumanity/widgets/shared/have_an_account.dart';
 import 'package:sponsorHumanity/widgets/shared/or_divider.dart';
 import 'package:sponsorHumanity/widgets/remember_me.dart';
@@ -10,6 +12,8 @@ import 'package:sponsorHumanity/widgets/shared/social_media_buttons.dart';
 import 'package:sponsorHumanity/widgets/shared/terms_and_conditions.dart';
 import 'package:sponsorHumanity/widgets/shared/text_fields.dart';
 import '../common/color_constants.dart';
+import 'package:sponsorHumanity/widgets/shared/use_app_anonymously.dart';
+import 'package:sponsorHumanity/utilities/show_toast.dart';
 
 class SignInScreen extends StatefulWidget {
   static const String id = 'signin';
@@ -19,9 +23,14 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   bool _viewPassword = true;
-
+  bool loading = false;
+  final _formKey = GlobalKey<FormState>();
+  final AuthService _auth = AuthService();
   TextEditingController _emailController;
   TextEditingController _passwordController;
+
+  String _password = "";
+  String _email = "";
 
   @override
   Widget build(BuildContext context) {
@@ -79,41 +88,45 @@ class _SignInScreenState extends State<SignInScreen> {
                         question: 'Don\'t have an account?',
                         text: 'Sign Up',
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return SignUpScreen();
-                              },
-                            ),
-                          );
+                          Navigator.pushReplacementNamed(
+                              context, SignUpScreen.id);
                         },
                       ),
                       SizedBox(height: size.height * 0.015),
-                      TextFields(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        labelText: 'Email',
-                      ),
-                      SizedBox(height: size.height * 0.005),
-                      TextFields(
-                        controller: _passwordController,
-                        obscureText: _viewPassword,
-                        keyboardType: TextInputType.text,
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: _viewPassword
-                              ? Icon(Icons.visibility)
-                              : Icon(Icons.visibility_off),
-                          iconSize: 16,
-                          onPressed: () {
-                            setState(() {
-                              _viewPassword = !_viewPassword;
-                            });
-                          },
-                          color: ColorConstants.kAccentColor,
-                        ),
-                      ),
+                      Form(
+                          key: _formKey,
+                          child: Column(children: <Widget>[
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _email = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              keyboardType: TextInputType.emailAddress,
+                              labelText: 'Email',
+                            ),
+                            SizedBox(height: size.height * 0.005),
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _password = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              obscureText: _viewPassword,
+                              keyboardType: TextInputType.text,
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                icon: _viewPassword
+                                    ? Icon(Icons.visibility)
+                                    : Icon(Icons.visibility_off),
+                                iconSize: 16,
+                                onPressed: () {
+                                  setState(() {
+                                    _viewPassword = !_viewPassword;
+                                  });
+                                },
+                                color: ColorConstants.kAccentColor,
+                              ),
+                            )
+                          ])),
                       SizedBox(height: size.height * 0.025),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,15 +159,42 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: FlatButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, Verification.id);
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                setState(() => loading = true);
+                                dynamic credential = await _auth
+                                    .signInWithEmail(_email, _password);
+                                if (credential == null) {
+                                  setState(() => loading = false);
+                                  showToast(
+                                      'Please Check Your Internet Connection');
+                                } else {
+                                  Navigator.pushNamed(context, Verification.id);
+                                }
+                              } else {
+                                setState(() => loading = false);
+                              }
                             },
-                            child: Text(
-                              'Sign in',
-                              style: TextStyle(
-                                color: ColorConstants.kwhiteColor,
-                                fontSize: 14,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                loading
+                                    ? Row(children: [
+                                        SpinKitCircle(
+                                          color: ColorConstants.kwhiteColor,
+                                          size: 22,
+                                        ),
+                                        SizedBox(width: size.width * 0.03),
+                                      ])
+                                    : Container(),
+                                Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: ColorConstants.kwhiteColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -164,16 +204,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       SizedBox(height: size.height * 0.015),
                       SocialMediaButtons(),
                       SizedBox(height: size.height * 0.04),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          'Use App anonymously to offer support',
-                          style: TextStyle(
-                              color: ColorConstants.kAccentColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14),
-                        ),
-                      ),
+                      Anonymous(),
                       SizedBox(height: size.height * 0.12),
                       TermsAndCondition(),
                     ],

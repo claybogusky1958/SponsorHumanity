@@ -12,7 +12,7 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  TextEditingController _emailController;
+  String _email = '';
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -76,7 +76,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       ),
                       SizedBox(height: size.height * 0.04),
                       TextFields(
-                        controller: _emailController,
+                        onChanged: (value) {
+                          setState(() => _email = value);
+                        },
+                        validator: (value) => value.isEmpty ? "Required" : null,
                         keyboardType: TextInputType.emailAddress,
                         labelText: 'Email',
                         autofocus: true,

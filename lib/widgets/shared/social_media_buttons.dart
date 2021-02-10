@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sponsorHumanity/common/color_constants.dart';
+import 'package:sponsorHumanity/services/auth.dart';
+import 'package:sponsorHumanity/utilities/show_toast.dart';
 
-class SocialMediaButtons extends StatelessWidget {
+class SocialMediaButtons extends StatefulWidget {
+  @override
+  _SocialMediaButtonsState createState() => _SocialMediaButtonsState();
+}
+
+class _SocialMediaButtonsState extends State<SocialMediaButtons> {
+  final AuthService _auth = AuthService();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -13,7 +22,13 @@ class SocialMediaButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () async {
+              try {
+                await _auth.signInWithGoogle();
+              } catch (e) {
+                showToast('Please Check Your Internet Connection');
+              }
+            },
             child: Container(
               height: 50,
               width: 50,

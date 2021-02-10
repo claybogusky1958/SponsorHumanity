@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sponsorHumanity/common/color_constants.dart';
 import 'package:sponsorHumanity/screens/signin_screen.dart';
+import 'package:sponsorHumanity/services/auth.dart';
 import 'package:sponsorHumanity/widgets/shared/have_an_account.dart';
 import 'package:sponsorHumanity/widgets/shared/or_divider.dart';
 import 'package:sponsorHumanity/widgets/shared/social_media_buttons.dart';
 import 'package:sponsorHumanity/widgets/shared/terms_and_conditions.dart';
 // import 'package:sponsorHumanity/widgets/text_field.dart';
 import 'package:sponsorHumanity/widgets/shared/text_fields.dart';
+import 'package:sponsorHumanity/utilities/show_toast.dart';
 
 class SignUpScreen extends StatefulWidget {
   static const String id = 'signup';
@@ -17,11 +20,14 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   bool _viewPassword = true;
   bool _viewPassword2 = true;
+  bool loading = false;
+  final _formKey = GlobalKey<FormState>();
+  final AuthService _auth = AuthService();
+  String _email = "";
+  String _password = "";
+  String _confirmPassword = "";
+  String _phone = "";
 
-  TextEditingController _emailController;
-  TextEditingController _passwordController;
-  TextEditingController _confirmPasswordController;
-  TextEditingController _phoneController;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -79,66 +85,76 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         question: 'Already have an account?',
                         text: 'Sign In',
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return SignInScreen();
-                              },
-                            ),
-                          );
+                          Navigator.pushReplacementNamed(
+                              context, SignInScreen.id);
                         },
                       ),
                       SizedBox(height: size.height * 0.015),
-                      TextFields(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        labelText: 'Email',
-                      ),
-                      SizedBox(height: size.height * 0.005),
-                      TextFields(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.number,
-                        labelText: 'Phone Number',
-                      ),
-                      SizedBox(height: size.height * 0.005),
-                      TextFields(
-                        controller: _passwordController,
-                        obscureText: _viewPassword,
-                        keyboardType: TextInputType.text,
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: _viewPassword
-                              ? Icon(Icons.visibility)
-                              : Icon(Icons.visibility_off),
-                          iconSize: 16,
-                          onPressed: () {
-                            setState(() {
-                              _viewPassword = !_viewPassword;
-                            });
-                          },
-                          color: ColorConstants.kAccentColor,
-                        ),
-                      ),
-                      SizedBox(height: size.height * 0.005),
-                      TextFields(
-                        controller: _confirmPasswordController,
-                        obscureText: _viewPassword2,
-                        keyboardType: TextInputType.text,
-                        labelText: 'Confirm Password',
-                        suffixIcon: IconButton(
-                          icon: _viewPassword2
-                              ? Icon(Icons.visibility)
-                              : Icon(Icons.visibility_off),
-                          iconSize: 16,
-                          onPressed: () {
-                            setState(() {
-                              _viewPassword2 = !_viewPassword2;
-                            });
-                          },
-                          color: ColorConstants.kAccentColor,
-                        ),
-                      ),
+                      Form(
+                          key: _formKey,
+                          child: Column(children: <Widget>[
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _email = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              keyboardType: TextInputType.emailAddress,
+                              labelText: 'Email',
+                            ),
+                            SizedBox(height: size.height * 0.005),
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _phone = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              keyboardType: TextInputType.number,
+                              labelText: 'Phone Number',
+                            ),
+                            SizedBox(height: size.height * 0.005),
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _password = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              obscureText: _viewPassword,
+                              keyboardType: TextInputType.text,
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                icon: _viewPassword
+                                    ? Icon(Icons.visibility)
+                                    : Icon(Icons.visibility_off),
+                                iconSize: 16,
+                                onPressed: () {
+                                  setState(() {
+                                    _viewPassword = !_viewPassword;
+                                  });
+                                },
+                                color: ColorConstants.kAccentColor,
+                              ),
+                            ),
+                            SizedBox(height: size.height * 0.005),
+                            TextFields(
+                              onChanged: (value) {
+                                setState(() => _confirmPassword = value);
+                              },
+                              validator: (value) => value.isEmpty ? "" : null,
+                              obscureText: _viewPassword2,
+                              keyboardType: TextInputType.text,
+                              labelText: 'Confirm Password',
+                              suffixIcon: IconButton(
+                                icon: _viewPassword2
+                                    ? Icon(Icons.visibility)
+                                    : Icon(Icons.visibility_off),
+                                iconSize: 16,
+                                onPressed: () {
+                                  setState(() {
+                                    _viewPassword2 = !_viewPassword2;
+                                  });
+                                },
+                                color: ColorConstants.kAccentColor,
+                              ),
+                            ),
+                          ])),
                       SizedBox(height: size.height * 0.04),
                       Hero(
                         transitionOnUserGestures: true,
@@ -150,13 +166,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: FlatButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Sign up',
-                              style: TextStyle(
-                                color: ColorConstants.kwhiteColor,
-                                fontSize: 14,
-                              ),
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                setState(() => loading = true);
+                                dynamic credential = await _auth
+                                    .registerWithEmail(_email, _password);
+                                if (credential == null) {
+                                  setState(() => loading = false);
+                                  showToast(
+                                      'Please Check Your Internet Connection');
+                                } else {
+                                  Navigator.pushNamed(context, SignInScreen.id);
+                                }
+                              } else {
+                                setState(() => loading = false);
+                              }
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                loading
+                                    ? Row(children: [
+                                        SpinKitCircle(
+                                          color: ColorConstants.kwhiteColor,
+                                          size: 22,
+                                        ),
+                                        SizedBox(width: size.width * 0.03),
+                                      ])
+                                    : Container(),
+                                Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: ColorConstants.kwhiteColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
