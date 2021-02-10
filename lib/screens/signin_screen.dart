@@ -3,8 +3,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sponsorHumanity/screens/forgotpass_screen.dart';
 import 'package:sponsorHumanity/screens/signup_screen.dart';
+import 'package:sponsorHumanity/screens/home_screen.dart';
 import 'package:sponsorHumanity/screens/verification_screen.dart';
 import 'package:sponsorHumanity/services/auth.dart';
+import 'package:sponsorHumanity/models/user.dart';
 import 'package:sponsorHumanity/widgets/shared/have_an_account.dart';
 import 'package:sponsorHumanity/widgets/shared/or_divider.dart';
 import 'package:sponsorHumanity/widgets/remember_me.dart';
@@ -162,14 +164,15 @@ class _SignInScreenState extends State<SignInScreen> {
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
                                 setState(() => loading = true);
-                                dynamic credential = await _auth
+                                AppUser credential = await _auth
                                     .signInWithEmail(_email, _password);
                                 if (credential == null) {
                                   setState(() => loading = false);
                                   showToast(
                                       'Please Check Your Internet Connection');
                                 } else {
-                                  Navigator.pushNamed(context, Verification.id);
+                                  Navigator.pushReplacementNamed(
+                                      context, HomeScreen.id);
                                 }
                               } else {
                                 setState(() => loading = false);

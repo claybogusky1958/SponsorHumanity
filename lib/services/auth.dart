@@ -137,9 +137,7 @@ class AuthService {
       final googleSignIn = GoogleSignIn();
       await googleSignIn.signOut();
 
-      await _auth.signOut().then((value) {
-        googleSignIn.signOut();
-      });
+      await _auth.signOut();
     } catch (e) {
       print(e.toString());
 

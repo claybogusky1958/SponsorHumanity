@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:sponsorHumanity/common/color_constants.dart';
 import 'package:sponsorHumanity/screens/signin_screen.dart';
 import 'package:sponsorHumanity/services/auth.dart';
+import 'package:sponsorHumanity/models/user.dart';
 import 'package:sponsorHumanity/widgets/shared/have_an_account.dart';
 import 'package:sponsorHumanity/widgets/shared/or_divider.dart';
 import 'package:sponsorHumanity/widgets/shared/social_media_buttons.dart';
@@ -169,7 +170,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
                                 setState(() => loading = true);
-                                dynamic credential = await _auth
+                                AppUser credential = await _auth
                                     .registerWithEmail(_email, _password);
                                 if (credential == null) {
                                   setState(() => loading = false);

@@ -14,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -53,9 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  margin: EdgeInsets.all(20),
+                  margin: EdgeInsets.symmetric(vertical: 20),
                   child: Text(
-                    'What do you like to do?',
+                    'What would you like to do?',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
                     softWrap: true,
@@ -63,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(height: 20),
                 Container(
+                  width: size.width * 0.6,
                   margin: EdgeInsets.all(20),
                   child: RaisedButton(
                     elevation: 0,
@@ -73,12 +75,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.all(25.0),
                     color: Colors.green[700],
                     textColor: ColorConstants.kAccentColor,
-                    child: Text("    Offer Support   ",
-                        style: TextStyle(fontSize: 20)),
+                    child:
+                        Text("Offer Support", style: TextStyle(fontSize: 20)),
                   ),
                 ),
                 SizedBox(height: 20),
                 Container(
+                  width: size.width * 0.6,
                   margin: EdgeInsets.all(20),
                   child: RaisedButton(
                     elevation: 0,
@@ -89,8 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.all(25.0),
                     color: Colors.blue,
                     textColor: ColorConstants.kAccentColor,
-                    child: Text(" Request Support",
-                        style: TextStyle(fontSize: 20)),
+                    child:
+                        Text("Request Support", style: TextStyle(fontSize: 20)),
                   ),
                 ),
                 SizedBox(height: 100),
