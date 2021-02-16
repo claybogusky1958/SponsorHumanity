@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sponsorHumanity/common/color_constants.dart';
 import 'package:sponsorHumanity/services/auth.dart';
 import 'package:sponsorHumanity/utilities/show_toast.dart';
+import 'package:sponsorHumanity/widgets/shared/show_exception_alert_dialog.dart';
 
 class SocialMediaButtons extends StatefulWidget {
   @override
@@ -25,8 +27,12 @@ class _SocialMediaButtonsState extends State<SocialMediaButtons> {
             onTap: () async {
               try {
                 await _auth.signInWithGoogle();
-              } catch (e) {
-                showToast('Please Check Your Internet Connection');
+              } on FirebaseAuthException catch (e) {
+                showExceptionAlertDialog(
+                    context,
+                    title: 'Sign in failed',
+                    exception: e,
+                  ); 
               }
             },
             child: Container(
@@ -45,7 +51,23 @@ class _SocialMediaButtonsState extends State<SocialMediaButtons> {
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () async {
+              try {
+                await _auth.signInWithFacebook();
+              } 
+              catch (e) {
+                showExceptionAlertDialog(
+                    context,
+                    title: 'Sign in failed',
+                    exception: e,
+                  );
+              }
+/*             changed 21 Feb 2021
+              catch (e ) {
+               showToast('Please Check Your Internet Connection');
+              }
+*/
+            },
             child: Container(
               height: 50,
               width: 50,
